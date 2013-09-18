@@ -34,7 +34,7 @@
 
 - (void)runJSONString:(NSString *)JSONString
 {
-    NSData *data = [NSData dataWithBytes:[JSONString UTF8String] length:JSONString.length];
+    NSData *data       = [NSData dataWithBytes:[JSONString UTF8String] length:JSONString.length];
     NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data
                                                          options:0
                                                            error:nil];
