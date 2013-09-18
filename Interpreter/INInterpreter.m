@@ -44,13 +44,36 @@
 }
 
 - (void)runJSON:(NSDictionary *)JSON {
-    [JSON[@"program"] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    NSString *key = [JSON allKeys][0];
+    [self runCode:JSON[key] forKey:key];
+}
+
+- (void)runSuite:(NSArray *)suite {
+    [suite enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSString *key = [obj allKeys][0];
-        if ([key isEqualToString:@"call"]) {
-            void (^method)(NSArray *) = _methods[obj[key][@"method"]];
-            method(obj[key][@"args"]);
-        }
+        [self runCode:obj[key] forKey:key];
     }];
+}
+
+- (void)runCode:(id)code forKey:(NSString *)key {
+    if ([key isEqualToString:@"program"]) {
+        [self runSuite:code];
+    }
+    
+    else if ([key isEqualToString:@"call"]) {
+        void (^method)(NSArray *) = _methods[code[@"method"]];
+        method(code[@"args"]);
+    }
+    
+    else if ([key isEqualToString:@"if"]) {
+        if ([code[@"test"] boolValue]) {
+            [self runSuite:code[@"true"]];
+        }
+    }
+    
+    else {
+        NSAssert(false, ([NSString stringWithFormat:@"Error: attempted to run unknown code key: %@", key]));
+    }
 }
 
 - (void)loadMethod:(NSDictionary *)method {

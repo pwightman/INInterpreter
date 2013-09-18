@@ -35,26 +35,77 @@
     __block BOOL didRun = NO;
     
     NSDictionary *method = @{
-                             @"name": @"print",
-                             @"block": ^(NSArray *args) {
-                                 NSLog(@"%@", args[0]);
-                                 didRun = YES;
-                                 XCTAssertEqualObjects(@"Hello World!", args[0], @"");
-                             }
-                         };
+        @"name":  @"print",
+        @"block": ^(NSArray *args) {
+            NSLog(@"%@", args[0]);
+            didRun = YES;
+            XCTAssertEqualObjects(@"Hello World!", args[0], @"");
+        }
+    };
     
     [_interpreter loadMethod:method];
     
     NSDictionary *program = @{
-                              @"program": @[
-                                      @{
-                                          @"call": @{
-                                                  @"method": @"print",
-                                                  @"args": @[ @"Hello World!" ]
-                                                  }
-                                          }
-                                      ]
-                              };
+        @"call": @{
+            @"method": @"print",
+            @"args": @[ @"Hello World!" ]
+        }
+    };
+    
+    [_interpreter runJSON:program];
+    
+    XCTAssertEqual(YES, didRun, @"");
+}
+
+- (void)testIf
+{
+    __block BOOL didRun = NO;
+    NSNumber *value = @NO;
+    
+    NSDictionary *method = @{
+        @"name":  @"print",
+        @"block": ^(NSArray *args) {
+            NSLog(@"%@", args[0]);
+            didRun = YES;
+            XCTAssertEqualObjects(@"Hello World!", args[0], @"");
+        }
+    };
+    
+    [_interpreter loadMethod:method];
+    
+    NSDictionary *program = @{
+        @"if": @{
+            @"test": value,
+            @"true": @[
+                @{
+                    @"call": @{
+                        @"method": @"print",
+                        @"args": @[ @"Hello World!" ]
+                    }
+                }
+            ]
+        }
+    };
+    
+    [_interpreter runJSON:program];
+    
+    XCTAssertEqual(NO, didRun, @"");
+    
+    value = @YES;
+    
+    program = @{
+        @"if": @{
+            @"test": value,
+            @"true": @[
+                @{
+                    @"call": @{
+                        @"method": @"print",
+                        @"args": @[ @"Hello World!" ]
+                    }
+                }
+            ]
+        }
+    };
     
     [_interpreter runJSON:program];
     
